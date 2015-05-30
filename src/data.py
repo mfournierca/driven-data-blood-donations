@@ -10,14 +10,18 @@ DATA_FILE = path.join(DATA_ROOT, "data.csv")
 
 
 def download():
+    """Download the data set"""
     urlretrieve(DATA_SOURCE_URL, DATA_FILE)
 
 
 def normalize(df):
+    """Normalize the dataframe"""
     return (df - df.mean()) / df.std()
 
 
 def load(random_seed=1, test_ratio=0.25):
+    """Load training and test sets. Feature dataframes are normalized, result
+    vectors are not."""
     df = pd.read_csv(DATA_FILE, index_col=0)
     xtrain, xtest = train_test_split(
         df, random_state=random_seed, test_size=test_ratio)
