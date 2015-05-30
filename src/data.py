@@ -1,4 +1,5 @@
 import pandas as pd
+from zipfile import ZipFile
 from urllib import urlretrieve
 from os import path
 from sklearn.cross_validation import train_test_split
@@ -11,6 +12,9 @@ COMPETITION_DATA_SOURCE = ("https://drivendata.s3.amazonaws.com/data/2/"
 DATA_ROOT = path.join(path.dirname(__file__), "..", "data")
 DATA_FILE = path.join(DATA_ROOT, "data.csv")
 COMPETITION_DATA_FILE = path.join(DATA_ROOT, "competition.csv")
+
+COMPETITION_SUBMISSION_CSV = path.join(DATA_ROOT, "submission.csv")
+COMPETITION_SUBMISSION_ZIP = path.join(DATA_ROOT, "submission.zip")
 
 
 def download():
@@ -38,3 +42,20 @@ def load(random_seed=1, test_ratio=0.25):
 def load_competition():
     df = pd.read_csv(COMPETITION_DATA_FILE, index_col=0)
     return normalize(df)
+
+
+def create_submission(model):
+    df = load_competition()
+    result = pd.DataFrame(model.predict_proba(df), index=df.index)
+    result.columns = ["", "Made Donation in March 2007"]
+    result = result.drop("", 1)
+    return result
+
+
+def write_submission(model):
+    result = create_submission(model)
+    result.to_csv(COMPETITION_SUBMISSION_CSV)
+    z = ZipFile(COMPETITION_SUBMISSION_ZIP, "w")
+    z.write(COMPETITION_SUBMISSION_CSV, "submission.csv")
+    z.close()
+
