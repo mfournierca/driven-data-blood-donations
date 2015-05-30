@@ -1,13 +1,26 @@
+import numpy
 from sklearn import pipeline
+from sklearn.grid_search import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
 
 
-def model():
-    """Return a scikit learn pipeline. 
+def logloss(model, x, y):
+    return log_loss(y, model.predict_proba(x))
 
-    :return: a scikit-learn pipeline
+
+def model():
+    """Return a model. 
+
+    :return: a scikit-learn model
     :rtype: sklearn.pipeline
     """
-    steps = [("logistic", LogisticRegression())]
-    return pipeline.Pipeline(steps=steps)
+    steps = [("logistic", LogisticRegression())] 
+    pipe = pipeline.Pipeline(steps=steps)
+
+    regularization_param_space = numpy.logspace(-4, 0)
+    estimator = GridSearchCV(
+        pipe,
+        {"logistic__C": regularization_param_space}
+    )
+    return estimator
