@@ -18,7 +18,7 @@ def model(x, y):
     steps = [
         ("pca", decomposition.PCA()),
         ("logistic", LogisticRegression(C=0.5))
-    ] 
+    ]
     pipe = pipeline.Pipeline(steps=steps)
 
     regularization_param_space = numpy.logspace(-4, 1)
@@ -27,8 +27,8 @@ def model(x, y):
     estimator = GridSearchCV(
         pipe,
         {
-            "logistic__C": regularization_param_space,
-            "pca__n_components": pca_n_components_space
+            "pca__n_components": pca_n_components_space,
+            "logistic__C": regularization_param_space
         }
     )
     estimator.fit(x, y)
