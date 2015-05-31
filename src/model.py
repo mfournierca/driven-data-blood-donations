@@ -29,7 +29,8 @@ def model(x, y):
         {
             "pca__n_components": pca_n_components_space,
             "logistic__C": regularization_param_space
-        }
+        },
+        scoring="log_loss"
     )
     estimator.fit(x, y)
 
