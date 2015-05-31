@@ -10,7 +10,7 @@ def logloss(model, x, y):
 
 
 def model(x, y):
-    """Return a model fitted to the training data.
+    """Return a model fit to the provided data.
 
     :return: a scikit-learn model
     :rtype: sklearn.pipeline
