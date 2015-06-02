@@ -39,6 +39,12 @@ def load(random_seed=1, test_ratio=0.25):
     return normalize(xtrain), ytrain, normalize(xtest), ytest
 
 
+def load_all():
+    x = pd.read_csv(DATA_FILE, index_col=0)
+    y = x.pop("Made Donation in March 2007")
+    return normalize(x), y
+
+
 def load_competition():
     df = pd.read_csv(COMPETITION_DATA_FILE, index_col=0)
     return normalize(df)
