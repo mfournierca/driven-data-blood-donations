@@ -3,32 +3,44 @@ from sklearn import pipeline, decomposition
 from sklearn.grid_search import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
+from sklearn.naive_bayes import GaussianNB
 
 
 def logloss(model, x, y):
     return log_loss(y, model.predict_proba(x))
 
 
-def model(x, y):
-    """Return a model fit to the provided data.
+def gnb(x, y):
+    """Return a naive bayes classifier fit to the provided data"""
+    steps = [
+        ("gnb", GaussianNB())
+    ]
+    pipe = pipeline.Pipeline(steps=steps)
 
-    :return: a scikit-learn model
-    :rtype: sklearn.pipeline
-    """
+    estimator = GridSearchCV(
+        pipe,
+        {
+            "gnb__class_prior_": numpy.arange(0.0, 1.0, 0.05)
+        },
+        scoring="log_loss"
+    )
+    estimator.fit(x, y)
+    return estimator.best_estimator_
+
+
+def logistic(x, y):
+    """Return a logistic model fit to the provided data."""
     steps = [
         ("pca", decomposition.PCA()),
         ("logistic", LogisticRegression(C=0.5))
     ]
     pipe = pipeline.Pipeline(steps=steps)
 
-    regularization_param_space = numpy.logspace(-4, 1)
-    pca_n_components_space = range(1, len(x.columns))
-
     estimator = GridSearchCV(
         pipe,
         {
-            "pca__n_components": pca_n_components_space,
-            "logistic__C": regularization_param_space
+            "pca__n_components": range(1, len(x.columns)),
+            "logistic__C": numpy.logspace(-4, 1)
         },
         scoring="log_loss"
     )
