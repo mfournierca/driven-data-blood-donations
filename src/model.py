@@ -4,6 +4,7 @@ from sklearn.grid_search import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
 from sklearn.naive_bayes import GaussianNB
+from sklearn.neural_network import BernoulliRBM
 
 
 def logloss(model, x, y):
@@ -12,21 +13,10 @@ def logloss(model, x, y):
 
 def gnb(x, y):
     """Return a naive bayes classifier fit to the provided data"""
-    steps = [
-        ("gnb", GaussianNB())
-    ]
-    pipe = pipeline.Pipeline(steps=steps)
-
-    estimator = GridSearchCV(
-        pipe,
-        {
-            "gnb__class_prior_": numpy.arange(0.0, 1.0, 0.05)
-        },
-        scoring="log_loss"
-    )
-    estimator.fit(x, y)
-    return estimator.best_estimator_
-
+    gnb = GaussianNB()
+    gnb.fit(x, y)
+    return gnb
+    
 
 def logistic(x, y):
     """Return a logistic model fit to the provided data."""

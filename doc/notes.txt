@@ -1,0 +1,9 @@
+try next:
+
+bias / variance? 
+- learning curves (lecture 10)
+- check train / cv error
+- neural network
+- lifetimes.py
+
+
