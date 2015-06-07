@@ -39,7 +39,7 @@ def get_learning_curve(model, x, y, niter=None, stepsize=100, trainsize=0.75):
 
     columns = ["iteration", "n_train", "train_log_loss", "test_log_loss"]
     results = []
-    n_smoothing_iterations = 5 
+    n_smoothing_iterations = 5
  
     n_train = 0
     for i in range(niter):
@@ -47,7 +47,7 @@ def get_learning_curve(model, x, y, niter=None, stepsize=100, trainsize=0.75):
         test_log_loss = 0
         train_log_loss = 0
 
-        for i in range(n_smoothing_iterations):
+        for j in range(n_smoothing_iterations):
             xtrain, xtest = train_test_split(x)
             xtrain = xtrain[:n_train]
             ytrain, ytest = y[xtrain.index], y[xtest.index]
