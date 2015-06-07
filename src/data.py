@@ -23,11 +23,6 @@ def download():
     urlretrieve(COMPETITION_DATA_SOURCE, COMPETITION_DATA_FILE)
 
 
-def normalize(df):
-    """Normalize the dataframe"""
-    return (df - df.mean()) / df.std()
-
-
 def load(random_seed=1, test_ratio=0.25):
     """Load training and test sets. Feature dataframes are normalized, result
     vectors are not."""
@@ -36,18 +31,18 @@ def load(random_seed=1, test_ratio=0.25):
         df, random_state=random_seed, test_size=test_ratio)
     ytrain = xtrain.pop("Made Donation in March 2007")
     ytest = xtest.pop("Made Donation in March 2007")
-    return normalize(xtrain), ytrain, normalize(xtest), ytest
+    return xtrain, ytrain, xtest, ytest
 
 
 def load_all():
     x = pd.read_csv(DATA_FILE, index_col=0)
     y = x.pop("Made Donation in March 2007")
-    return normalize(x), y
+    return x, y
 
 
 def load_competition():
     df = pd.read_csv(COMPETITION_DATA_FILE, index_col=0)
-    return normalize(df)
+    return df
 
 
 def create_submission(model):
