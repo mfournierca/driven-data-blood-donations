@@ -84,8 +84,22 @@ def logistic(max_pca_components=4):
     return estimator
 
 
-def knn(max_k=50):
+def knn(max_k=33):
     """Return a k means clustering classifier"""
 
     steps = [
-        ("knn": 
+        ("knn", KNeighborsClassifier())
+    ]
+    pipe = pipeline.Pipeline(steps=steps)
+
+    estimator = GridSearchCV(
+        pipe,
+        {
+            "knn__n_neighbors": range(1, max_k)
+        },
+        scoring="log_loss"
+    )
+
+    return estimator
+
+ 
