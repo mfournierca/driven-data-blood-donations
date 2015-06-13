@@ -1,6 +1,7 @@
-import numpy
+import numpy as np
 
 from pandas import DataFrame
+
 from sklearn import pipeline, decomposition
 
 from sklearn.preprocessing import (
@@ -9,88 +10,61 @@ from sklearn.preprocessing import (
 
 from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import log_loss
-from sklearn.cross_validation import train_test_split
 
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+
+from sklearn.learning_curve import learning_curve
 
 
-def logloss(model, x, y):
-    return log_loss(y, model.predict_proba(x))
-
-
-def get_learning_curve(model, x, y, niter=None, stepsize=100, trainsize=0.75):
-    """Train and evaluate a model on multiple training set sizes. Return a 
-    data frame that can be used to create learning curves. 
-    
-    :param model: a method that takes a training set of features x and results
-        y and returns an sklearn model with the fit() method
-    :type model: function
+def get_learning_curve(
+        model, 
+        x, 
+        y, 
+        cv=3, 
+        train_sizes=None, 
+        scoring="log_loss"):
+    """Get a dataframe representing the learning curve for a model
+ 
+    :param model: a sklearn model
+    :type model: object
     :param x: the full dataframe of features to pass to the model pipeline
     :type x: pandas.DataFrame
-    :param y: the full vector of result
+    :param y: the full vector of results
     :type y: pandas.DataFrame
-    :param niter: the number of iterations to perform
-    :type niter: int
-    :param stepsize: the number of training example to increase by on each 
-        iteration
-    :type stepsize: int
-    :param trainsize: the proportion of data points to use for the training set
-    :type trainsize: float
+    :param cv: the number of cross validation folds to make on each iteration
+    :param train_sizes: a list of training set sizes to go through
     :returns: a dataframe
     """
-   
-    if niter is None:
-        niter = int((len(x) * trainsize) / stepsize)
-
-    columns = ["iteration", "n_train", "train_log_loss", "test_log_loss"]
-    results = []
-    n_smoothing_iterations = 5
  
-    n_train = 0
-    for i in range(niter):
-        n_train += stepsize
-        test_log_loss = 0
-        train_log_loss = 0
-
-        for j in range(n_smoothing_iterations):
-            xtrain, xtest = train_test_split(x)
-            xtrain = xtrain[:n_train]
-            ytrain, ytest = y[xtrain.index], y[xtest.index]
-            m = model(xtrain, ytrain)
-            
-            train_log_loss += logloss(m, xtrain, ytrain)
-            test_log_loss += logloss(m, xtest, ytest) 
-
-        results.append(
-            dict(
-                zip(
-                    columns, 
-                    [
-                        i, 
-                        n_train,
-                        train_log_loss / n_smoothing_iterations,
-                        test_log_loss / n_smoothing_iterations
-                    ]
-                )
-            )
-        )
-    return DataFrame(results)
+    if train_sizes is None:
+        train_sizes = range(50, 400, 25)
+ 
+    sizes, train_score, cv_score = learning_curve(
+        model, x, y, train_sizes=train_sizes, cv=cv, scoring=scoring
+    )
+    train_score = np.apply_along_axis(np.mean, 1, train_score)
+    cv_score = np.apply_along_axis(np.mean, 1, cv_score)
+    df = DataFrame(
+        [sizes, train_score, cv_score], 
+        index=["sizes", "train_score", "cv_score"]
+    ).transpose()
+    return df
 
 
-def gnb(x, y):
-    """Return a naive bayes classifier fit to the provided data"""
+def gnb():
+    """Return a naive bayes classifier"""
     steps = [
         ("standard_scaler", StandardScaler()),
         ("gnb", GaussianNB())
     ]
     pipe = pipeline.Pipeline(steps=steps)
-    pipe.fit(x, y)
     return pipe
 
 
-def logistic(x, y):
-    """Return a logistic model fit to the provided data."""
+def logistic(max_pca_components=4):
+    """Return a logistic model"""
     steps = [
         ("standard_scaler", StandardScaler()),
         ("pca", decomposition.PCA()),
@@ -101,11 +75,17 @@ def logistic(x, y):
     estimator = GridSearchCV(
         pipe,
         {
-            "pca__n_components": range(1, len(x.columns)),
-            "logistic__C": numpy.logspace(-4, 1)
+            "pca__n_components": range(1, max_pca_components),
+            "logistic__C": np.logspace(-4, 1)
         },
         scoring="log_loss"
     )
-    estimator.fit(x, y)
 
-    return estimator.best_estimator_
+    return estimator
+
+
+def knn(max_k=50):
+    """Return a k means clustering classifier"""
+
+    steps = [
+        ("knn": 
