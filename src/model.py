@@ -1,12 +1,18 @@
 import numpy
+
 from pandas import DataFrame
 from sklearn import pipeline, decomposition
+
+from sklearn.preprocessing import (
+    StandardScaler, PolynomialFeatures
+)
+
 from sklearn.grid_search import GridSearchCV
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neural_network import BernoulliRBM
 from sklearn.cross_validation import train_test_split
+
+from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import LogisticRegression
 
 
 def logloss(model, x, y):
@@ -20,9 +26,9 @@ def get_learning_curve(model, x, y, niter=None, stepsize=100, trainsize=0.75):
     :param model: a method that takes a training set of features x and results
         y and returns an sklearn model with the fit() method
     :type model: function
-    :param x: the full set of pre-processed and normalized feature vectors
+    :param x: the full dataframe of features to pass to the model pipeline
     :type x: pandas.DataFrame
-    :param y: the full set of result vectors
+    :param y: the full vector of result
     :type y: pandas.DataFrame
     :param niter: the number of iterations to perform
     :type niter: int
@@ -74,16 +80,21 @@ def get_learning_curve(model, x, y, niter=None, stepsize=100, trainsize=0.75):
 
 def gnb(x, y):
     """Return a naive bayes classifier fit to the provided data"""
-    gnb = GaussianNB()
-    gnb.fit(x, y)
-    return gnb
-    
+    steps = [
+        ("standard_scaler", StandardScaler()),
+        ("gnb", GaussianNB())
+    ]
+    pipe = pipeline.Pipeline(steps=steps)
+    pipe.fit(x, y)
+    return pipe
+
 
 def logistic(x, y):
     """Return a logistic model fit to the provided data."""
     steps = [
+        ("standard_scaler", StandardScaler()),
         ("pca", decomposition.PCA()),
-        ("logistic", LogisticRegression(C=0.5))
+        ("logistic", LogisticRegression())
     ]
     pipe = pipeline.Pipeline(steps=steps)
 
