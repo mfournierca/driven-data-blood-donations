@@ -17,6 +17,12 @@ from sklearn.neighbors import KNeighborsClassifier
 
 from sklearn.learning_curve import learning_curve
 
+from lifetimes import BetaGeoFitter
+
+
+# 
+# util
+# 
 
 def get_learning_curve(
         model, 
@@ -52,6 +58,26 @@ def get_learning_curve(
     ).transpose()
     return df
 
+
+class AddAge(object):
+    
+    def fit(self, x, y):
+        pass
+
+    def transform(self, x):
+        x["Age at Last Donation"] = x["Months since Last Donation"] - \
+            x["Months since First Donation"]
+        return x
+
+class BetaGeoWrapper(BetaGeoFitter):
+ 
+    def fit(self, x, y):
+        super(self, BetaGeoWrapper).fit()    
+
+
+#
+# models 
+#
 
 def gnb():
     """Return a naive bayes classifier"""
@@ -102,4 +128,12 @@ def knn(max_k=33):
 
     return estimator
 
+
+def betageo():
+    steps = [
+        ("addage", AddAge()),
+        ("betageo", BetaGeoFitter())
+    ]
+    pipe = pipeline.Pipeline(steps=steps)
+    return pipe
  
