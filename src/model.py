@@ -61,9 +61,10 @@ def get_learning_curve(
 # models 
 #
 
-def gnb():
+def gnb(max_poly_degree=1):
     """Return a naive bayes classifier"""
     steps = [
+        ("polynomial_features", PolynomialFeatures(degree=max_poly_degree)),
         ("standard_scaler", StandardScaler()),
         ("gnb", GaussianNB())
     ]
@@ -71,9 +72,10 @@ def gnb():
     return pipe
 
 
-def logistic(max_pca_components=4):
+def logistic(max_pca_components=4, max_poly_degree=1):
     """Return a logistic model"""
     steps = [
+        ("polynomial_features", PolynomialFeatures()),
         ("standard_scaler", StandardScaler()),
         ("pca", decomposition.PCA()),
         ("logistic", LogisticRegression())
@@ -83,6 +85,7 @@ def logistic(max_pca_components=4):
     estimator = GridSearchCV(
         pipe,
         {
+            "polynomial_features__degree": range(1, max_poly_degree + 1),
             "pca__n_components": range(1, max_pca_components),
             "logistic__C": np.logspace(-4, 1)
         },
@@ -92,10 +95,11 @@ def logistic(max_pca_components=4):
     return estimator
 
 
-def knn(max_k=33):
+def knn(max_k=33, max_poly_degree=1):
     """Return a k means clustering classifier"""
 
     steps = [
+        ("polynomial_features", PolynomialFeatures()),
         ("knn", KNeighborsClassifier())
     ]
     pipe = pipeline.Pipeline(steps=steps)
@@ -103,6 +107,7 @@ def knn(max_k=33):
     estimator = GridSearchCV(
         pipe,
         {
+            "polynomial_features__degree": range(1, max_poly_degree + 1),
             "knn__n_neighbors": range(1, max_k)
         },
         scoring="log_loss"
