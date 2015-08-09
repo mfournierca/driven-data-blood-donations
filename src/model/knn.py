@@ -6,7 +6,7 @@ from sklearn.grid_search import GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 
 
-def knn(max_k=33, max_poly_degree=1):
+def knn(max_k=33, max_poly_degree=3):
     """Return a k means clustering classifier"""
 
     steps = [

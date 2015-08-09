@@ -28,7 +28,7 @@ def get_learning_curve(
     """
 
     if train_sizes is None:
-        train_sizes = range(50, 400, 25)
+        train_sizes = range(50, 600, 25)
 
     sizes, train_score, cv_score = learning_curve(
         model, x, y, train_sizes=train_sizes, cv=cv, scoring=scoring
